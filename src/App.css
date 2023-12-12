@@ -1,38 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Rethink+Sans&display=swap');
+
+body {
+  font-family: 'Noto Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 100vh;
+  background: linear-gradient(rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.3)),
+    url("https://images.pexels.com/photos/6526173/pexels-photo-6526173.jpeg");
+  background-size: cover;
+  background-position: center;
 }
 
-.App-link {
-  color: #61dafb;
+form {
+  background-color: white;
+  padding: 10px 60px;
+  border-radius: 10px;
+  max-width: 1000px;
+  width: 100%;
+  overflow-y: auto;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.HouseTiles {
+  /* display: flex; */
+  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: space-around;
+  max-height: 70vh;
+  overflow-y: auto;
+  margin: 0 auto;
+}
+
+.HouseTile {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.HouseTiles::-webkit-scrollbar {
+  width: 10px;
+}
+
+.HouseTiles::-webkit-scrollbar-thumb {
+  background-color: #c2c2c2;
+  border-radius: 5px;
+}
+
+.HouseTiles::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.HouseTile img {
+  max-width: 250px;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 20px;
+}
+
+.HouseDetails {
+  flex-grow: 1;
+}
+
+
+.BookButton {
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+.BookButton:hover {
+  background-color: #0056b3;
+}
+
+.PopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Popup {
+  background-color: white;
+  padding: 10px 60px;
+  border-radius: 10px;
+  max-width: 1000px;
+  width: 100%;
+  overflow-y: auto;
 }

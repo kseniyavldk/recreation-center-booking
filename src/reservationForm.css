@@ -1,0 +1,105 @@
+.formInput {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.date-category-group {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+/* Style the selected date */
+.react-datepicker__day--selected {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.react-datepicker__day--today {
+    font-weight: bold;
+}
+
+.react-datepicker-popper {
+    z-index: 1000;
+}
+
+h2 {
+    color: #880819;
+}
+
+button {
+    width: 100px;
+    height: 50px;
+    padding: 10px;
+    border: none;
+    background-color: #880819;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 30px;
+}
+
+.inline-group {
+    display: flex;
+    flex-direction: column;
+    margin: 0px 10px 20px;
+}
+
+.inline-group label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.inline-group select,
+.inline-group .custom-datepicker {
+    width: 220px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.room-info-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.room-image-container {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.room-description {
+    flex: 1;
+}
+
+.room-image-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inline-group textarea {
+    width: 100%;
+    height: 150px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 16px;
+    resize: none;
+}

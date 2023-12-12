@@ -1,62 +1,52 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import ReservationPopup from "./ReservationPopup";
+import "./reservationForm.css";
 
-const ReservationForm = () => {
+const ReservationForm = (props) => {
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
-  const [roomCategory, setRoomCategory] = useState("luxury");
-  const [additionalServices, setAdditionalServices] = useState([]);
-  const [notes, setNotes] = useState("");
-  const [showReservationPopup, setShowReservationPopup] = useState(false);
 
   const handleBookClick = () => {
-    setShowReservationPopup(true);
+    if (props.onBook) {
+      props.onBook(true);
+    }
   };
 
   return (
-    <div>
-      <h2>Reservation Form</h2>
-      <div>
-        <label>Arrival Date:</label>
-        <DatePicker
-          selected={arrivalDate}
-          onChange={(date) => setArrivalDate(date)}
-        />
+    <div className="formInput">
+      <h2>Форма бронирования</h2>
+      <div className="date-category-group">
+        <div className="inline-group">
+          <label htmlFor="arrivalDate">Дата приезда:</label>
+          <DatePicker
+            id="arrivalDate"
+            selected={arrivalDate}
+            onChange={(date) => setArrivalDate(date)}
+            className="custom-datepicker"
+          />
+        </div>
+        <div className="inline-group">
+          <label htmlFor="departureDate">Дата выезда:</label>
+          <DatePicker
+            id="departureDate"
+            selected={departureDate}
+            onChange={(date) => setDepartureDate(date)}
+            className="custom-datepicker"
+          />
+        </div>
+        <div className="inline-group">
+          <label htmlFor="numberOfPeople">Количество человек</label>
+          <select id="numberOfPeople">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <button onClick={handleBookClick}>Поиск</button>
       </div>
-      <div>
-        <label>Departure Date:</label>
-        <DatePicker
-          selected={departureDate}
-          onChange={(date) => setDepartureDate(date)}
-        />
-      </div>
-      <div>
-        <label>Room Category:</label>
-        <select
-          value={roomCategory}
-          onChange={(e) => setRoomCategory(e.target.value)}
-        >
-          <option value="luxury">Luxury</option>
-          <option value="standard">Standard</option>
-        </select>
-      </div>
-      {/* Display room picture based on roomCategory */}
-      {/* Additional services dropdown */}
-      {/* Notes input */}
-      <button onClick={handleBookClick}>Book</button>
-
-      {showReservationPopup && (
-        <ReservationPopup
-          arrivalDate={arrivalDate}
-          departureDate={departureDate}
-          roomCategory={roomCategory}
-          additionalServices={additionalServices}
-          notes={notes}
-          onClose={() => setShowReservationPopup(false)}
-        />
-      )}
     </div>
   );
 };
