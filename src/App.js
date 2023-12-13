@@ -105,19 +105,20 @@ function App() {
                 <p>{house.price}</p>
                 <p>{house.description}</p>
               </div>
-              <button
-                onClick={() => handleBookClick(house)}
-                className="BookButton"
-              >
-                Забронировать
-              </button>
+              <div>
+                <button
+                  onClick={() => handleBookClick(house)}
+                  className="BookButton"
+                >
+                  Забронировать
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
         {showReservationPopup && (
           <div className="PopupOverlay">
-            {/* Dark overlay */}
             <div className="Popup">
               <ReservationPopup
                 arrivalDate={arrivalDate}

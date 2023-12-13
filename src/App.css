@@ -35,12 +35,15 @@ form {
   max-height: 70vh;
   overflow-y: auto;
   margin: 0 auto;
+  gap: 20px;
+  overflow-x: hidden;
 }
 
 .HouseTile {
   display: flex;
   align-items: flex-start;
   width: 100%;
+  margin: 15px 0 5px;
 }
 
 .HouseTiles::-webkit-scrollbar {
@@ -69,10 +72,16 @@ form {
   flex-grow: 1;
 }
 
+h3 {
+  margin: 0px auto;
+}
+
 
 .BookButton {
   cursor: pointer;
-  margin-left: 20px;
+  min-width: 170px;
+  padding: 10px;
+  margin: 15px;
 }
 
 .BookButton:hover {

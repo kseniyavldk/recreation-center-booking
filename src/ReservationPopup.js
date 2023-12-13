@@ -23,14 +23,16 @@ const ReservationPopup = ({
   const handleOkClick = () => {
     if (showCodeInput) {
       if (verificationCode.trim() === generatedCode.toString()) {
-        onConfirm({
-          arrivalDate,
-          departureDate,
-          selectedHouse,
-          firstName,
-          lastName,
-          phoneNumber,
-        });
+        if (typeof onConfirm === "function") {
+          onConfirm({
+            arrivalDate,
+            departureDate,
+            selectedHouse,
+            firstName,
+            lastName,
+            phoneNumber,
+          });
+        }
         onClose();
       } else {
         setVerificationError(true);
@@ -45,36 +47,36 @@ const ReservationPopup = ({
   return (
     <div className="modal-overlay">
       <div className="reservation-popup">
-        <button className="close-button" onClick={onClose}>
-          &times;
-        </button>
         <div className="formInput">
           <h2>Детали бронирования</h2>
           <p>Информация о доме:</p>
           <p>Название: {selectedHouse.name}</p>
           <p>Цена: {selectedHouse.price}</p>
           <div className="inline-group">
-            <label>Имя:</label>
+            {/*  <label>Имя:</label> */}
             <input
               type="text"
+              placeholder="Имя"
               value={firstName}
               className="custom-datepicker"
               onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
           <div className="inline-group">
-            <label>Фамилия:</label>
+            {/* <label>Фамилия:</label> */}
             <input
               type="text"
+              placeholder="Фамилия"
               value={lastName}
               className="custom-datepicker"
               onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="inline-group">
-            <label>Номер телефона:</label>
+            {/* <label>Номер телефона:</label> */}
             <input
               type="text"
+              placeholder="Номер телефона"
               value={phoneNumber}
               className="custom-datepicker"
               onChange={(e) => setPhoneNumber(e.target.value)}
@@ -82,9 +84,10 @@ const ReservationPopup = ({
           </div>
           {showCodeInput && (
             <div className="inline-group">
-              <label>Verification Code:</label>
               <input
                 type="text"
+                placeholder="Код проверки"
+                className="custom-datepicker"
                 value={verificationCode}
                 onChange={(e) => {
                   setVerificationCode(e.target.value);
@@ -92,12 +95,13 @@ const ReservationPopup = ({
                 }}
               />
               {verificationError && (
-                <p style={{ color: "red" }}>Incorrect verification code</p>
+                <p style={{ color: "red" }}>Неправильный код проверки</p>
               )}
             </div>
           )}
           <div>
             <button onClick={handleOkClick}>OK</button>
+            <button onClick={onClose}>Отмена</button>
           </div>
           {showCodeInput && <p>Verification Code: {generatedCode}</p>}
         </div>

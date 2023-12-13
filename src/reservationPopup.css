@@ -38,16 +38,25 @@
     margin: 0 auto;
 }
 
+.formInput button {
+    margin-right: 10px;
+}
+
 .custom-datepicker {
     width: 100px;
     padding: 8px;
     font-size: 16px;
     border: 1px solid #880819;
     border-radius: 4px;
+    margin-bottom: 8px;
 }
 
 h2 {
     color: #880819;
+}
+
+p {
+    margin: 8px auto;
 }
 
 button {
@@ -92,7 +101,6 @@ button {
 
 .reservation-popup {
     background-color: #fff;
-    /* Popup background color */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
