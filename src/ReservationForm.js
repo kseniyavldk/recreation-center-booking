@@ -18,7 +18,7 @@ const ReservationForm = (props) => {
       <h2>Форма бронирования</h2>
       <div className="date-category-group">
         <div className="inline-group">
-          <label htmlFor="arrivalDate">Дата приезда:</label>
+          <label htmlFor="arrivalDate">Дата заезда:</label>
           <DatePicker
             id="arrivalDate"
             selected={arrivalDate}

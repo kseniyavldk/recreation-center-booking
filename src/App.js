@@ -13,6 +13,16 @@ function App() {
   const handleReservation = (e) => {
     e.preventDefault();
 
+    /*  if (!arrivalDate || !departureDate) {
+      alert("Пожалуйста, выберите даты заезда и отъезда.");
+      return;
+    } */
+
+    /*   if (departureDate <= arrivalDate) {
+      alert("Дата отъезда должна быть после даты прибытия.");
+      return;
+    } */
+
     const allHouses = [
       {
         id: 1,
@@ -22,6 +32,10 @@ function App() {
           "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
         image:
           "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        bookedDates: [
+          { startDate: "2023-12-20", endDate: "2023-12-25" },
+          { startDate: "2023-12-28", endDate: "2024-01-05" },
+        ],
       },
       {
         id: 2,
@@ -67,12 +81,16 @@ function App() {
       const isAvailable = !bookedDates.some((range) => {
         const bookedStartDate = new Date(range.startDate);
         const bookedEndDate = new Date(range.endDate);
+        const selectedArrivalDate = new Date(arrivalDate);
+        const selectedDepartureDate = new Date(departureDate);
 
         return (
-          (arrivalDate >= bookedStartDate && arrivalDate <= bookedEndDate) ||
-          (departureDate >= bookedStartDate &&
-            departureDate <= bookedEndDate) ||
-          (arrivalDate <= bookedStartDate && departureDate >= bookedEndDate)
+          (selectedArrivalDate >= bookedStartDate &&
+            selectedArrivalDate <= bookedEndDate) ||
+          (selectedDepartureDate >= bookedStartDate &&
+            selectedDepartureDate <= bookedEndDate) ||
+          (selectedArrivalDate <= bookedStartDate &&
+            selectedDepartureDate >= bookedEndDate)
         );
       });
 
