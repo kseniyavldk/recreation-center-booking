@@ -84,7 +84,7 @@ const ReservationPopup = ({
           <p>Название: {selectedHouse.name}</p>
           <p>Цена: {selectedHouse.price}</p>
           <div
-            className={`inline-group ${
+            className={`validation-input-group ${
               validationError.firstName ? "error" : ""
             }`}
           >
@@ -103,7 +103,7 @@ const ReservationPopup = ({
             )}
           </div>
           <div
-            className={`inline-group ${
+            className={`validation-input-group ${
               validationError.lastName ? "error" : ""
             }`}
           >
@@ -122,7 +122,7 @@ const ReservationPopup = ({
             )}
           </div>
           <div
-            className={`inline-group ${
+            className={`validation-input-group ${
               validationError.phoneNumber ? "error" : ""
             }`}
           >
@@ -141,7 +141,7 @@ const ReservationPopup = ({
             )}
           </div>
           {showCodeInput && (
-            <div className="inline-group">
+            <div className="validation-input-group">
               <input
                 type="text"
                 placeholder="Код проверки"
