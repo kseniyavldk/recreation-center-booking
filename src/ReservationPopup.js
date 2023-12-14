@@ -54,15 +54,22 @@ const ReservationPopup = ({
 
     if (showCodeInput) {
       if (verificationCode.trim() === generatedCode.toString()) {
+        // Log the user's information and selected house data to the console
+        const userData = {
+          firstName,
+          lastName,
+          phoneNumber,
+        };
+        const reservationData = {
+          arrivalDate,
+          departureDate,
+          selectedHouse,
+          ...userData,
+        };
+        console.log("Reservation Data:", reservationData);
+
         if (typeof onConfirm === "function") {
-          onConfirm({
-            arrivalDate,
-            departureDate,
-            selectedHouse,
-            firstName,
-            lastName,
-            phoneNumber,
-          });
+          onConfirm(reservationData);
         }
         onClose();
       } else {
@@ -153,7 +160,7 @@ const ReservationPopup = ({
                 }}
               />
               {verificationError && (
-                <p style={{ color: "red" }}>Неправильный код проверки</p>
+                <p className="error-message">Неправильный код проверки</p>
               )}
             </div>
           )}

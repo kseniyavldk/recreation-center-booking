@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReservationForm from "./ReservationForm";
 import "./App.css";
 import ReservationPopup from "./ReservationPopup";
+import MyBookingsForm from "./MyBookingsForm";
 
 function App() {
   const [houses, setHouses] = useState([]);
@@ -9,6 +10,7 @@ function App() {
   const [departureDate, setDepartureDate] = useState(null);
   const [selectedHouse, setSelectedHouse] = useState(null);
   const [showReservationPopup, setShowReservationPopup] = useState(false);
+  const [showMyBookingsForm, setShowMyBookingsForm] = useState(false);
 
   const handleReservation = (e) => {
     e.preventDefault();
@@ -103,10 +105,19 @@ function App() {
   const handleBookClick = (house) => {
     setSelectedHouse(house);
     setShowReservationPopup(true);
+
+    console.log("Selected House Data:", house);
+  };
+
+  const handleMyBookingsClick = () => {
+    setShowMyBookingsForm(true);
   };
 
   return (
     <div className="App">
+      <button className="my-booking" onClick={handleMyBookingsClick}>
+        Мои бронирования
+      </button>
       <form onSubmit={handleReservation}>
         <ReservationForm
           name="reservationForm"
@@ -144,6 +155,14 @@ function App() {
                 selectedHouse={selectedHouse}
                 onClose={() => setShowReservationPopup(false)}
               />
+            </div>
+          </div>
+        )}
+
+        {showMyBookingsForm && (
+          <div className="MyBookingsFormOverlay">
+            <div className="MyBookingsForm">
+              <MyBookingsForm onClose={() => setShowMyBookingsForm(false)} />
             </div>
           </div>
         )}
