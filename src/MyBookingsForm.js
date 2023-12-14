@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./myBookingsForm.css";
 
-const MyBookingsForm = ({ onClose, onConfirm }) => {
+const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validationError, setValidationError] = useState({
     phoneNumber: false,
@@ -38,7 +38,7 @@ const MyBookingsForm = ({ onClose, onConfirm }) => {
 
   const handleOkClick = (e) => {
     e.preventDefault();
-    // Validate phone number
+
     if (!phoneNumber.trim() || !validatePhoneNumber(phoneNumber)) {
       setValidationError({
         phoneNumber: true,
@@ -55,6 +55,10 @@ const MyBookingsForm = ({ onClose, onConfirm }) => {
           ...userData,
         };
         console.log("Reservation Data:", reservationData);
+
+        if (typeof onBookingHistoryOpen === "function") {
+          onBookingHistoryOpen();
+        }
 
         if (typeof onConfirm === "function") {
           onConfirm(reservationData);
@@ -108,7 +112,7 @@ const MyBookingsForm = ({ onClose, onConfirm }) => {
           </div>
         )}
         <div className="button-group">
-          <button onClick={(e) => handleOkClick(e)}>OK</button>
+          <button onClick={handleOkClick}>OK</button>
           <button onClick={onClose}>Отмена</button>
         </div>
         {showCodeInput && <p>Verification Code: {generatedCode}</p>}

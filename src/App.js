@@ -3,6 +3,7 @@ import ReservationForm from "./ReservationForm";
 import "./App.css";
 import ReservationPopup from "./ReservationPopup";
 import MyBookingsForm from "./MyBookingsForm";
+import ReservationHistoryForm from "./ReservationHistoryForm";
 
 function App() {
   const [houses, setHouses] = useState([]);
@@ -11,6 +12,7 @@ function App() {
   const [selectedHouse, setSelectedHouse] = useState(null);
   const [showReservationPopup, setShowReservationPopup] = useState(false);
   const [showMyBookingsForm, setShowMyBookingsForm] = useState(false);
+  const [showBookingHistory, setShowBookingHistory] = useState(false);
 
   const handleReservation = (e) => {
     e.preventDefault();
@@ -113,60 +115,74 @@ function App() {
     setShowMyBookingsForm(true);
   };
 
+  const handleBookingHistoryOpen = () => {
+    setShowBookingHistory(true);
+  };
+
   return (
     <div className="App">
       <button className="my-booking" onClick={handleMyBookingsClick}>
         Мои бронирования
       </button>
-      <form onSubmit={handleReservation}>
-        <ReservationForm
-          name="reservationForm"
-          setArrivalDate={setArrivalDate}
-          setDepartureDate={setDepartureDate}
-        />
 
-        <div className="HouseTiles">
-          {houses.map((house) => (
-            <div key={house.id} className="HouseTile">
-              <img src={house.image} alt={house.name} />
-              <div className="HouseDetails">
-                <h3>{house.name}</h3>
-                <p>{house.price}</p>
-                <p>{house.description}</p>
-              </div>
-              <div>
-                <button
-                  onClick={() => handleBookClick(house)}
-                  className="BookButton"
-                >
-                  Забронировать
-                </button>
-              </div>
-            </div>
-          ))}
+      {showBookingHistory ? (
+        <div>
+          <ReservationHistoryForm />
         </div>
+      ) : (
+        <form onSubmit={handleReservation}>
+          <ReservationForm
+            name="reservationForm"
+            setArrivalDate={setArrivalDate}
+            setDepartureDate={setDepartureDate}
+          />
 
-        {showReservationPopup && (
-          <div className="PopupOverlay">
-            <div className="Popup">
-              <ReservationPopup
-                arrivalDate={arrivalDate}
-                departureDate={departureDate}
-                selectedHouse={selectedHouse}
-                onClose={() => setShowReservationPopup(false)}
-              />
-            </div>
+          <div className="HouseTiles">
+            {houses.map((house) => (
+              <div key={house.id} className="HouseTile">
+                <img src={house.image} alt={house.name} />
+                <div className="HouseDetails">
+                  <h3>{house.name}</h3>
+                  <p>{house.price}</p>
+                  <p>{house.description}</p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => handleBookClick(house)}
+                    className="BookButton"
+                  >
+                    Забронировать
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
 
-        {showMyBookingsForm && (
-          <div className="MyBookingsFormOverlay">
-            <div className="MyBookingsForm">
-              <MyBookingsForm onClose={() => setShowMyBookingsForm(false)} />
+          {showReservationPopup && (
+            <div className="PopupOverlay">
+              <div className="Popup">
+                <ReservationPopup
+                  arrivalDate={arrivalDate}
+                  departureDate={departureDate}
+                  selectedHouse={selectedHouse}
+                  onClose={() => setShowReservationPopup(false)}
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </form>
+          )}
+
+          {showMyBookingsForm && (
+            <div className="MyBookingsFormOverlay">
+              <div className="MyBookingsForm">
+                <MyBookingsForm
+                  onClose={() => setShowMyBookingsForm(false)}
+                  onBookingHistoryOpen={handleBookingHistoryOpen}
+                />
+              </div>
+            </div>
+          )}
+        </form>
+      )}
     </div>
   );
 }
