@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReservationForm from "./ReservationForm";
 import "./App.css";
 import ReservationPopup from "./ReservationPopup";
@@ -9,108 +9,156 @@ function App() {
   const [houses, setHouses] = useState([]);
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
-  const [selectedHouse, setSelectedHouse] = useState(null);
   const [showReservationPopup, setShowReservationPopup] = useState(false);
   const [showMyBookingsForm, setShowMyBookingsForm] = useState(false);
   const [showBookingHistory, setShowBookingHistory] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [selectedHouseDataList, setSelectedHouseDataList] = useState([]);
+  const [selectedHouseIndex, setSelectedHouseIndex] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedHouse, setSelectedHouse] = useState(null);
+  const [selectedHouseInfo, setSelectedHouseInfo] = useState({
+    name: "",
+    price: 0,
+  });
 
-  const handleReservation = (e) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Replace 'YOUR_BEARER_TOKEN' with the actual token value
+        const bearerToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4cCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
+
+        const response = await fetch("https://localhost:44377/api/v1/House", {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            "Content-Type": "application/json", // You may need to adjust the content type based on your API requirements
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setHouses(data.data);
+      } catch (error) {
+        console.error("Error fetching house data:", error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const calculateAmount = (selectedHouse) => {
+    if (selectedHouse && selectedHouse.type && selectedHouse.price) {
+      return {
+        name: selectedHouse.type,
+        price: selectedHouse.price,
+      };
+    } else {
+      return {
+        name: "",
+        price: 0,
+      };
+    }
+  };
+
+  const handleHouseSelection = (house, index) => {
+    setSelectedHouse(house);
+    const { name, price } = calculateAmount(house);
+
+    setSelectedHouseDataList((prevList) => {
+      const newList = [...prevList];
+      newList[index] = {
+        house: {
+          type: house.type,
+          price: house.price,
+        },
+        amount: { name, price },
+      };
+      return newList;
+    });
+  };
+
+  const handleReservation = async (e) => {
     e.preventDefault();
 
-    /*  if (!arrivalDate || !departureDate) {
-      alert("Пожалуйста, выберите даты заезда и отъезда.");
-      return;
-    } */
+    try {
+      const filteredHouses = houses.filter((house) => {
+        const bookedDates = house.bookedDates || [];
 
-    /*   if (departureDate <= arrivalDate) {
-      alert("Дата отъезда должна быть после даты прибытия.");
-      return;
-    } */
+        const isAvailable = !bookedDates.some((range) => {
+          const bookedStartDate = new Date(range.startDate);
+          const bookedEndDate = new Date(range.endDate);
+          const selectedArrivalDate = new Date(arrivalDate);
+          const selectedDepartureDate = new Date(departureDate);
 
-    const allHouses = [
-      {
-        id: 1,
-        name: "Beautiful Villa",
-        price: "$200/сутки",
-        description:
-          "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        bookedDates: [
-          { startDate: "2023-12-20", endDate: "2023-12-25" },
-          { startDate: "2023-12-28", endDate: "2024-01-05" },
-        ],
-      },
-      {
-        id: 2,
-        name: "Cozy Cottage",
-        price: "$100/сутки",
-        description:
-          "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      },
-      {
-        id: 3,
-        name: "Luxury Apartment",
-        price: "$300/сутки",
-        description:
-          "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      },
-      {
-        id: 4,
-        name: "Luxury Apartment",
-        price: "$300/сутки",
-        description:
-          "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      },
-      {
-        id: 5,
-        name: "Luxury Apartment",
-        price: "$300/сутки",
-        description:
-          "Выдающийся дизайн, непревзойденное качество и первоклассное обслуживание воплощают в себе исключительный опыт роскоши. Просторные помещения наполнены изысканным искусством, выдающейся мебелью и передовыми технологиями, создавая уникальную атмосферу комфорта.",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      },
-    ];
+          return (
+            (selectedArrivalDate >= bookedStartDate &&
+              selectedArrivalDate <= bookedEndDate) ||
+            (selectedDepartureDate >= bookedStartDate &&
+              selectedDepartureDate <= bookedEndDate) ||
+            (selectedArrivalDate <= bookedStartDate &&
+              selectedDepartureDate >= bookedEndDate)
+          );
+        });
 
-    const filteredHouses = allHouses.filter((house) => {
-      const bookedDates = house.bookedDates || [];
-
-      const isAvailable = !bookedDates.some((range) => {
-        const bookedStartDate = new Date(range.startDate);
-        const bookedEndDate = new Date(range.endDate);
-        const selectedArrivalDate = new Date(arrivalDate);
-        const selectedDepartureDate = new Date(departureDate);
-
-        return (
-          (selectedArrivalDate >= bookedStartDate &&
-            selectedArrivalDate <= bookedEndDate) ||
-          (selectedDepartureDate >= bookedStartDate &&
-            selectedDepartureDate <= bookedEndDate) ||
-          (selectedArrivalDate <= bookedStartDate &&
-            selectedDepartureDate >= bookedEndDate)
-        );
+        return isAvailable;
       });
 
-      return isAvailable;
-    });
+      setHouses(filteredHouses);
 
-    setHouses(filteredHouses);
+      if (filteredHouses.length > 0) {
+        handleHouseSelection(filteredHouses[0]);
+      }
+      setIsSearching(true);
+    } catch (error) {
+      console.error("Error fetching house data:", error);
+    }
   };
 
-  const handleBookClick = (house) => {
-    setSelectedHouse(house);
-    setShowReservationPopup(true);
+  const handleBookClick = (
+    isBooked,
+    arrivalDate,
+    departureDate,
+    selectedHouse,
+    index
+  ) => {
+    console.log("Selected House in handleBookClick:", selectedHouse);
 
-    console.log("Selected House Data:", house);
+    if (isBooked && selectedHouse) {
+      const { name, price } = calculateAmount(selectedHouse);
+      console.log("Calculated Amount:", { name, price });
+      console.log("Arrival Date:", arrivalDate);
+      console.log("Departure Date:", departureDate);
+
+      setSelectedHouseInfo({
+        name: selectedHouse.type,
+        price: selectedHouse.price,
+      });
+
+      setSelectedHouseDataList((prevData) => {
+        const newData = [...prevData];
+        newData[index] = {
+          house: {
+            type: selectedHouse.type,
+            price: selectedHouse.price,
+          },
+          amount: { name, price },
+        };
+        return newData;
+      });
+
+      setArrivalDate(arrivalDate);
+      setDepartureDate(departureDate);
+      setTotalAmount(price);
+      setSelectedHouseIndex(index);
+      setShowReservationPopup(true);
+    } else {
+      console.error("Invalid selectedHouse object:", selectedHouse);
+    }
   };
-
   const handleMyBookingsClick = () => {
     setShowMyBookingsForm(true);
   };
@@ -135,36 +183,51 @@ function App() {
             name="reservationForm"
             setArrivalDate={setArrivalDate}
             setDepartureDate={setDepartureDate}
+            onBook={handleBookClick}
+            calculateAmount={calculateAmount}
+            setIsSearching={setIsSearching}
           />
-
-          <div className="HouseTiles">
-            {houses.map((house) => (
-              <div key={house.id} className="HouseTile">
-                <img src={house.image} alt={house.name} />
-                <div className="HouseDetails">
-                  <h3>{house.name}</h3>
-                  <p>{house.price}</p>
-                  <p>{house.description}</p>
+          {isSearching && (
+            <div className="HouseTiles">
+              {houses.map((house, index) => (
+                <div key={house.id} className="HouseTile">
+                  <img
+                    src={`data:image/jpeg;base64,${house.image}`}
+                    alt={house.organizationName || "House Image"}
+                  />
+                  <div className="HouseDetails">
+                    <h3>{house.type}</h3>
+                    <p>{house.price}</p>
+                    <p>{house.description}</p>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() =>
+                        handleBookClick(
+                          true,
+                          arrivalDate,
+                          departureDate,
+                          house,
+                          index
+                        )
+                      }
+                      className="BookButton"
+                      disabled={!house}
+                    >
+                      Забронировать
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <button
-                    onClick={() => handleBookClick(house)}
-                    className="BookButton"
-                  >
-                    Забронировать
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {showReservationPopup && (
+              ))}
+            </div>
+          )}
+          {showReservationPopup && selectedHouseIndex !== null && (
             <div className="PopupOverlay">
               <div className="Popup">
                 <ReservationPopup
                   arrivalDate={arrivalDate}
                   departureDate={departureDate}
-                  selectedHouse={selectedHouse}
+                  selectedHouseInfo={selectedHouseInfo}
                   onClose={() => setShowReservationPopup(false)}
                 />
               </div>
@@ -177,6 +240,7 @@ function App() {
                 <MyBookingsForm
                   onClose={() => setShowMyBookingsForm(false)}
                   onBookingHistoryOpen={handleBookingHistoryOpen}
+                  onSelectHouse={handleHouseSelection}
                 />
               </div>
             </div>

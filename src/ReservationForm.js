@@ -6,10 +6,14 @@ import "./reservationForm.css";
 const ReservationForm = (props) => {
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
+  const [selectedHouse, setSelectedHouse] = useState(null);
 
   const handleBookClick = () => {
-    if (props.onBook) {
-      props.onBook(true);
+    if (props.onBook && selectedHouse) {
+      const amount = props.calculateAmount(selectedHouse);
+      props.onBook(true, arrivalDate, departureDate, selectedHouse, amount);
+    } else {
+      console.error("No house selected.");
     }
   };
 

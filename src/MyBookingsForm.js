@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import "./myBookingsForm.css";
 
-const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
+const MyBookingsForm = ({
+  onClose,
+  onConfirm,
+  onBookingHistoryOpen,
+  totalAmount,
+}) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validationError, setValidationError] = useState({
     phoneNumber: false,
@@ -116,6 +121,7 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
           <button onClick={onClose}>Отмена</button>
         </div>
         {showCodeInput && <p>Verification Code: {generatedCode}</p>}
+        <p>Total Amount: {totalAmount}</p>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import "./reservationPopup.css";
 const ReservationPopup = ({
   arrivalDate,
   departureDate,
-  selectedHouse,
+  selectedHouseInfo,
   onClose,
   onConfirm,
 }) => {
@@ -20,6 +20,8 @@ const ReservationPopup = ({
     lastName: false,
     phoneNumber: false,
   });
+  const houseName = selectedHouseInfo.name || "No House Selected";
+  const housePrice = selectedHouseInfo.price || "No Price Available";
 
   const generateVerificationCode = () => {
     return Math.floor(1000 + Math.random() * 9000);
@@ -63,7 +65,7 @@ const ReservationPopup = ({
         const reservationData = {
           arrivalDate,
           departureDate,
-          selectedHouse,
+          selectedHouseInfo,
           ...userData,
         };
         console.log("Reservation Data:", reservationData);
@@ -88,8 +90,8 @@ const ReservationPopup = ({
         <div className="formInput">
           <h2>Детали бронирования</h2>
           <p>Информация о доме:</p>
-          <p>Название: {selectedHouse.name}</p>
-          <p>Цена: {selectedHouse.price}</p>
+          <p>Название: {houseName}</p>
+          <p>Цена: {housePrice}</p>
           <div
             className={`validation-input-group ${
               validationError.firstName ? "error" : ""
