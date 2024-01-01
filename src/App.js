@@ -25,8 +25,6 @@ function App() {
     price: 0,
   });
 
-  const [displayHouses, setDisplayHouses] = useState([]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -120,7 +118,7 @@ function App() {
     }
   };
 
-  const handleBookClick = (
+  const handleBookClick = async (
     isBooked,
     arrivalDate,
     departureDate,
@@ -135,32 +133,74 @@ function App() {
       console.log("Arrival Date:", arrivalDate);
       console.log("Departure Date:", departureDate);
 
-      setSelectedHouseInfo({
-        name: selectedHouse.type,
-        price: selectedHouse.price,
-      });
+      try {
+        const bearerToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4cCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
 
-      setSelectedHouseDataList((prevData) => {
-        const newData = [...prevData];
-        newData[index] = {
-          house: {
-            type: selectedHouse.type,
-            price: selectedHouse.price,
-          },
-          amount: { name, price },
-        };
-        return newData;
-      });
+        const response = await fetch(
+          `https://localhost:44377/api/v1/Order/getavailablehouse/${selectedHouse.id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${bearerToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      setArrivalDate(arrivalDate);
-      setDepartureDate(departureDate);
-      setTotalAmount(price);
-      setSelectedHouseIndex(index);
-      setShowReservationPopup(true);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch available houses. Status: ${response.status}`
+          );
+        }
+
+        const apiUrl = `https://localhost:44377/api/v1/Order/getavailablehouse/${selectedHouse.id}`;
+        const apiResponse = await fetch(apiUrl);
+
+        if (!apiResponse.ok) {
+          throw new Error(
+            `Failed to fetch available house details. Status: ${apiResponse.status}`
+          );
+        }
+        const apiData = await apiResponse.json();
+
+        console.log("Data from API:", apiData);
+
+        const { type, capacity, price, totalPrice } = apiData;
+
+        setSelectedHouseInfo({
+          id: selectedHouse.id,
+          name: type,
+          capacity,
+          price,
+          totalPrice,
+        });
+
+        setSelectedHouseDataList((prevData) => {
+          const newData = [...prevData];
+          newData[index] = {
+            house: {
+              type: selectedHouse.type,
+              price: selectedHouse.price,
+            },
+            amount: { name, price },
+          };
+          return newData;
+        });
+
+        setArrivalDate(arrivalDate);
+        setDepartureDate(departureDate);
+        setTotalAmount(price);
+        setSelectedHouseIndex(index);
+        setShowReservationPopup(true);
+      } catch (error) {
+        console.error("Error fetching available houses:", error.message);
+      }
     } else {
       console.error("Invalid selectedHouse object:", selectedHouse);
     }
   };
+
   const handleMyBookingsClick = () => {
     setShowMyBookingsForm(true);
   };

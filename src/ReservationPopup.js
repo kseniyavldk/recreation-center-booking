@@ -136,6 +136,8 @@ const ReservationPopup = ({
           <p>Информация о доме:</p>
           <p>Название: {houseName}</p>
           <p>Цена: {housePrice}</p>
+          <p>Вместимость: {selectedHouseInfo.capacity}</p>
+          <p>Итоговая цена: {selectedHouseInfo.totalPrice}</p>
           <div
             className={`validation-input-group ${
               validationError.firstName ? "error" : ""

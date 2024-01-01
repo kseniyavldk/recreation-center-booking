@@ -7,6 +7,7 @@ const ReservationForm = (props) => {
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
   const [numberOfPeople, setNumberOfPeople] = useState(1);
+  const [searchClicked, setSearchClicked] = useState(false);
 
   const organizationCode = "zelenaygavan";
 
@@ -25,8 +26,6 @@ const ReservationForm = (props) => {
         day: "2-digit",
         year: "numeric",
       });
-
-      // console.log("Data to be sent:", JSON.stringify(requestData, null, 2));
 
       const response = await fetch(
         `https://localhost:44377/api/v1/Order/getavailablehouses?OrganizationCode=${organizationCode}&DateIn=${formattedArrivalDate}&DateOut=${formattedDepartureDate}&CountPeople=${numberOfPeople}`,
@@ -55,39 +54,14 @@ const ReservationForm = (props) => {
   };
 
   useEffect(() => {
-    if (arrivalDate && departureDate) {
+    if (searchClicked && arrivalDate && departureDate) {
       fetchData();
+      setSearchClicked(false); // Reset searchClicked after fetching data
     }
-  }, [arrivalDate, departureDate, numberOfPeople]);
+  }, [arrivalDate, departureDate, numberOfPeople, searchClicked]);
 
   const handleBookClick = () => {
-    if (arrivalDate && departureDate && props.houses) {
-      const numberOfPeople = document.getElementById("numberOfPeople").value;
-
-      const filteredHouses = props.houses.filter((house) => {
-        const bookedDates = house.bookedDates || [];
-        const isAvailable =
-          house.capacity >= numberOfPeople &&
-          !bookedDates.some((range) => {
-            const bookedStartDate = new Date(range.startDate);
-            const bookedEndDate = new Date(range.endDate);
-            return (
-              arrivalDate >= bookedStartDate && departureDate <= bookedEndDate
-            );
-          });
-
-        return isAvailable;
-      });
-
-      props.setIsSearching(true);
-      props.setHouses(filteredHouses);
-
-      if (filteredHouses.length === 0) {
-        console.log("No houses available for the selected criteria.");
-      }
-    } else {
-      console.error("Please select both arrival and departure dates.");
-    }
+    setSearchClicked(true);
   };
 
   return (
