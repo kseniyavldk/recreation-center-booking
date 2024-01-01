@@ -25,33 +25,6 @@ function App() {
     price: 0,
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const bearerToken =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4cCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
-
-        const response = await fetch("https://localhost:44377/api/v1/House", {
-          headers: {
-            Authorization: `Bearer ${bearerToken}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data. Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setHouses(data.data);
-      } catch (error) {
-        console.error("Error fetching house data:", error.message);
-      }
-    };
-
-    // fetchData();
-  }, []);
-
   const calculateAmount = (selectedHouse) => {
     if (selectedHouse && selectedHouse.type && selectedHouse.price) {
       return {
@@ -70,17 +43,7 @@ function App() {
     setSelectedHouse(house);
     const { name, price } = calculateAmount(house);
 
-    setSelectedHouseDataList((prevList) => {
-      const newList = [...prevList];
-      newList[index] = {
-        house: {
-          type: house.type,
-          price: house.price,
-        },
-        amount: { name, price },
-      };
-      return newList;
-    });
+    console.log(house);
   };
 
   const handleReservation = async (e) => {
@@ -110,7 +73,7 @@ function App() {
       });
       setHouses(filteredHouses);
       if (filteredHouses.length > 0) {
-        handleHouseSelection(filteredHouses[0]);
+        handleHouseSelection(selectedHouse, 0);
       }
       setIsSearching(true);
     } catch (error) {
@@ -125,7 +88,12 @@ function App() {
     selectedHouse,
     index
   ) => {
-    console.log("Selected House in handleBookClick:", selectedHouse);
+    console.log("Arrival Date:", arrivalDate);
+    console.log("Departure Date:", departureDate);
+    if (!arrivalDate || !departureDate) {
+      console.error("Please select both arrival and departure dates.");
+      return;
+    }
 
     if (isBooked && selectedHouse) {
       const { name, price } = calculateAmount(selectedHouse);
@@ -135,10 +103,10 @@ function App() {
 
       try {
         const bearerToken =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4cCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4dCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
 
         const response = await fetch(
-          `https://localhost:44377/api/v1/Order/getavailablehouse/${selectedHouse.id}`,
+          `https://localhost:44377/api/v1/Order/getavailablehouse/${selectedHouse.id}?DateIn=${arrivalDate}&DateOut=${departureDate}`,
           {
             method: "GET",
             headers: {
@@ -149,48 +117,30 @@ function App() {
         );
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch available houses. Status: ${response.status}`
+          const errorText = await response.text();
+          console.error(
+            `Failed to fetch data. Status: ${response.status}, Response: ${errorText}`
           );
+          throw new Error(`Failed to fetch data. Status: ${response.status}`);
         }
 
-        const apiUrl = `https://localhost:44377/api/v1/Order/getavailablehouse/${selectedHouse.id}`;
-        const apiResponse = await fetch(apiUrl);
+        const data = await response.json();
 
-        if (!apiResponse.ok) {
-          throw new Error(
-            `Failed to fetch available house details. Status: ${apiResponse.status}`
-          );
+        if (data.failed) {
+          alert(data.message);
+          return;
         }
-        const apiData = await apiResponse.json();
 
-        console.log("Data from API:", apiData);
-
-        const { type, capacity, price, totalPrice } = apiData;
+        console.log(data);
 
         setSelectedHouseInfo({
-          id: selectedHouse.id,
-          name: type,
-          capacity,
-          price,
-          totalPrice,
+          id: data.id,
+          name: data.type,
+          capacity: data.capacity,
+          price: data.price,
+          totalPrice: data.totalPrice,
         });
 
-        setSelectedHouseDataList((prevData) => {
-          const newData = [...prevData];
-          newData[index] = {
-            house: {
-              type: selectedHouse.type,
-              price: selectedHouse.price,
-            },
-            amount: { name, price },
-          };
-          return newData;
-        });
-
-        setArrivalDate(arrivalDate);
-        setDepartureDate(departureDate);
-        setTotalAmount(price);
         setSelectedHouseIndex(index);
         setShowReservationPopup(true);
       } catch (error) {
@@ -246,7 +196,8 @@ function App() {
                   />
                   <div className="HouseDetails">
                     <h3>{house.type}</h3>
-                    <p>{house.price}</p>
+                    <p>Стоимость: {house.price} BYN</p>
+                    <p>Вместимость: {house.capacity} человека</p>
                     <p>{house.description}</p>
                   </div>
                   <div>

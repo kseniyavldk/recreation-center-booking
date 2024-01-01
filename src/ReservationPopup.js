@@ -10,6 +10,7 @@ const ReservationPopup = ({
 }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [orderId, setOrderId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
@@ -26,61 +27,103 @@ const ReservationPopup = ({
   const handleApiRequest = async () => {
     console.log("Inside handleApiRequest", arrivalDate, departureDate);
 
-    /* if (!arrivalDate || !departureDate) {
-      console.error("Invalid arrivalDate or departureDate");
-      return;
-    } */
+    console.log(showCodeInput);
 
-    try {
-      const apiUrl = "https://localhost:44377/api/v1/Order/Create";
+    if (showCodeInput) {
+      console.log(showCodeInput);
 
-      if (
-        showCodeInput &&
-        verificationCode.trim() !== generatedCode.toString()
-      ) {
-        setVerificationError(true);
-        return;
+      try {
+        const apiUrl = "https://localhost:44377/api/v1/Order/Confirm";
+
+        const requestData = {
+          orderId: orderId,
+          code: verificationCode,
+        };
+
+        console.log("Data to be sent:", JSON.stringify(requestData, null, 2));
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            `Failed to create order. Status: ${response.status}, Response: ${errorText}`
+          );
+          throw new Error(`Failed to create order. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Order created successfully:", data);
+
+        if (data.failed) {
+          alert(data.message);
+          return;
+        }
+
+        alert("Бронирование подтверждено.\nОжидайте звонок от администратора.");
+
+        onClose();
+      } catch (error) {
+        console.error("Error creating order:", error.message);
+      }
+    } else {
+      try {
+        const apiUrl = "https://localhost:44377/api/v1/Order/Create";
+
+        console.log(selectedHouseInfo);
+
+        const requestData = {
+          houseId: selectedHouseInfo.id,
+          dateInString: arrivalDate,
+          dateOutString: departureDate,
+          countPeople: selectedHouseInfo.capacity,
+          firstName,
+          lastName,
+          phoneNumber,
+        };
+
+        console.log("Data to be sent:", JSON.stringify(requestData, null, 2));
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            `Failed to create order. Status: ${response.status}, Response: ${errorText}`
+          );
+          throw new Error(`Failed to create order. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Order created successfully:", data);
+
+        if (data.failed) {
+          alert(data.message);
+          return;
+        }
+
+        setGeneratedCode("Код подтверждения отправлен");
+
+        setOrderId(data.data);
+
+        // onClose();
+      } catch (error) {
+        console.error("Error creating order:", error.message);
       }
 
-      console.log(selectedHouseInfo);
-
-      const requestData = {
-        houseId: selectedHouseInfo.id,
-        dateIn: arrivalDate,
-        dateOut: departureDate,
-        countPeople: selectedHouseInfo.capacity,
-        firstName,
-        lastName,
-        phoneNumber,
-      };
-
-      console.log("Data to be sent:", JSON.stringify(requestData, null, 2));
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          `Failed to create order. Status: ${response.status}, Response: ${errorText}`
-        );
-        throw new Error(`Failed to create order. Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Order created successfully:", data);
-
-      if (typeof onConfirm === "function") {
-        onConfirm(data);
-      }
-      onClose();
-    } catch (error) {
-      console.error("Error creating order:", error.message);
+      setShowCodeInput(true);
     }
 
     console.log("Inside handleApiRequest");
@@ -120,9 +163,7 @@ const ReservationPopup = ({
     }
 
     try {
-      await handleApiRequest(); // Call the handleApiRequest function
-      // Additional logic or state updates can be added here if needed
-      onClose();
+      await handleApiRequest();
     } catch (error) {
       console.error("Error handling API request:", error.message);
     }
@@ -133,11 +174,12 @@ const ReservationPopup = ({
       <div className="reservation-popup">
         <div className="formInput">
           <h2>Детали бронирования</h2>
-          <p>Информация о доме:</p>
-          <p>Название: {houseName}</p>
-          <p>Цена: {housePrice}</p>
-          <p>Вместимость: {selectedHouseInfo.capacity}</p>
-          <p>Итоговая цена: {selectedHouseInfo.totalPrice}</p>
+          <p>{houseName}</p>
+          <p>Дата заезда: {arrivalDate} </p>
+          <p>Дата выезда: {departureDate} </p>
+          <p>Стоимость за сутки: {housePrice} BYN</p>
+          <p>Итоговая стоимость: {selectedHouseInfo.totalPrice} BYN</p>
+          <p></p>
           <div
             className={`validation-input-group ${
               validationError.firstName ? "error" : ""
@@ -199,7 +241,7 @@ const ReservationPopup = ({
             <div className="validation-input-group">
               <input
                 type="text"
-                placeholder="Код проверки"
+                placeholder="Код подтверждения"
                 className="custom-datepicker"
                 value={verificationCode}
                 onChange={(e) => {
@@ -208,7 +250,10 @@ const ReservationPopup = ({
                 }}
               />
               {verificationError && (
-                <p className="error-message">Неправильный код проверки</p>
+                <p className="error-message">Неправильный код подтверждения</p>
+              )}
+              {showCodeInput && (
+                <p className="error-message">{generatedCode}</p>
               )}
             </div>
           )}

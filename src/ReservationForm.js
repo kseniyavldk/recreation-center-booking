@@ -46,8 +46,17 @@ const ReservationForm = (props) => {
       }
 
       const data = await response.json();
+
+      if (data.failed) {
+        alert(data.message);
+        return;
+      }
+
       props.setHouses(data.data);
       props.setIsSearching(true);
+
+      props.setArrivalDate(formattedArrivalDate);
+      props.setDepartureDate(formattedDepartureDate);
     } catch (error) {
       console.error("Error fetching house data:", error.message);
     }
@@ -56,11 +65,17 @@ const ReservationForm = (props) => {
   useEffect(() => {
     if (searchClicked && arrivalDate && departureDate) {
       fetchData();
-      setSearchClicked(false); // Reset searchClicked after fetching data
+      setSearchClicked(false);
     }
   }, [arrivalDate, departureDate, numberOfPeople, searchClicked]);
 
   const handleBookClick = () => {
+    // Check if arrivalDate and departureDate are set
+    if (!arrivalDate || !departureDate) {
+      console.error("Please select both arrival and departure dates.");
+      return;
+    }
+
     setSearchClicked(true);
   };
 
