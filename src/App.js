@@ -18,21 +18,25 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [selectedHouse, setSelectedHouse] = useState(null);
   const [selectedHouseInfo, setSelectedHouseInfo] = useState({
+    id: 0,
     name: "",
+    capacity: 0,
+    totalPrice: 0,
     price: 0,
   });
+
+  const [displayHouses, setDisplayHouses] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Replace 'YOUR_BEARER_TOKEN' with the actual token value
         const bearerToken =
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwianRpIjoiNzUyZDQ1NWQtYzNhOS00NzMzLWI2NjgtZjExZmUwNDk2M2IxIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInVpZCI6IjZjYzEzNmE0LTk3NGUtNDViZi05NmExLWM5YmRkMjM4Mzc2YiIsImZpcnN0X25hbWUiOiJNdWtlc2giLCJsYXN0X25hbWUiOiJNdXJ1Z2FuIiwiZnVsbF9uYW1lIjoiTXVrZXNoIE11cnVnYW4iLCJpcCI6IjAuMC4wLjEiLCJyb2xlcyI6WyJBZG1pbiIsIk1vZGVyYXRvciIsIlN1cGVyQWRtaW4iLCJCYXNpYyJdLCJuYmYiOjE3MDI5MDA2ODUsImV4cCI6MTcwNTQ5MjY4NSwiaXNzIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpIiwiYXVkIjoiQXNwTmV0Q29yZUhlcm8uQm9pbGVycGxhdGUuQXBpLlVzZXIifQ.JUDpKFgFI8cDbJXcsQqSxNMEYjXZayaSMkyYneOsw80";
 
         const response = await fetch("https://localhost:44377/api/v1/House", {
           headers: {
             Authorization: `Bearer ${bearerToken}`,
-            "Content-Type": "application/json", // You may need to adjust the content type based on your API requirements
+            "Content-Type": "application/json",
           },
         });
 
@@ -47,7 +51,7 @@ function App() {
       }
     };
 
-    fetchData();
+    // fetchData();
   }, []);
 
   const calculateAmount = (selectedHouse) => {
@@ -106,9 +110,7 @@ function App() {
 
         return isAvailable;
       });
-
       setHouses(filteredHouses);
-
       if (filteredHouses.length > 0) {
         handleHouseSelection(filteredHouses[0]);
       }
@@ -178,15 +180,22 @@ function App() {
           <ReservationHistoryForm />
         </div>
       ) : (
-        <form onSubmit={handleReservation}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleReservation(e);
+          }}
+        >
           <ReservationForm
-            name="reservationForm"
+            setHouses={setHouses}
             setArrivalDate={setArrivalDate}
             setDepartureDate={setDepartureDate}
             onBook={handleBookClick}
             calculateAmount={calculateAmount}
             setIsSearching={setIsSearching}
+            houses={houses}
           />
+
           {isSearching && (
             <div className="HouseTiles">
               {houses.map((house, index) => (
@@ -221,6 +230,7 @@ function App() {
               ))}
             </div>
           )}
+
           {showReservationPopup && selectedHouseIndex !== null && (
             <div className="PopupOverlay">
               <div className="Popup">

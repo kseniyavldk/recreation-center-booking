@@ -121,7 +121,6 @@ const MyBookingsForm = ({
           <button onClick={onClose}>Отмена</button>
         </div>
         {showCodeInput && <p>Verification Code: {generatedCode}</p>}
-        <p>Total Amount: {totalAmount}</p>
       </div>
     </div>
   );

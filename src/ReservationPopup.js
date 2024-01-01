@@ -23,8 +23,67 @@ const ReservationPopup = ({
   const houseName = selectedHouseInfo.name || "No House Selected";
   const housePrice = selectedHouseInfo.price || "No Price Available";
 
-  const generateVerificationCode = () => {
-    return Math.floor(1000 + Math.random() * 9000);
+  const handleApiRequest = async () => {
+    console.log("Inside handleApiRequest", arrivalDate, departureDate);
+
+    /* if (!arrivalDate || !departureDate) {
+      console.error("Invalid arrivalDate or departureDate");
+      return;
+    } */
+
+    try {
+      const apiUrl = "https://localhost:44377/api/v1/Order/Create";
+
+      if (
+        showCodeInput &&
+        verificationCode.trim() !== generatedCode.toString()
+      ) {
+        setVerificationError(true);
+        return;
+      }
+
+      console.log(selectedHouseInfo);
+
+      const requestData = {
+        houseId: selectedHouseInfo.id,
+        dateIn: arrivalDate,
+        dateOut: departureDate,
+        countPeople: selectedHouseInfo.capacity,
+        firstName,
+        lastName,
+        phoneNumber,
+      };
+
+      console.log("Data to be sent:", JSON.stringify(requestData, null, 2));
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Failed to create order. Status: ${response.status}, Response: ${errorText}`
+        );
+        throw new Error(`Failed to create order. Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Order created successfully:", data);
+
+      if (typeof onConfirm === "function") {
+        onConfirm(data);
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error creating order:", error.message);
+    }
+
+    console.log("Inside handleApiRequest");
   };
 
   const validatePhoneNumber = (number) => {
@@ -33,7 +92,8 @@ const ReservationPopup = ({
     return belarusianPhoneNumberRegex.test(number);
   };
 
-  const handleOkClick = () => {
+  const handleOkClick = async () => {
+    console.log("OK Button Clicked");
     // Validate first name, last name, and phone number
     if (!firstName.trim() || !lastName.trim() || !phoneNumber.trim()) {
       setValidationError({
@@ -54,33 +114,17 @@ const ReservationPopup = ({
       return;
     }
 
-    if (showCodeInput) {
-      if (verificationCode.trim() === generatedCode.toString()) {
-        // Log the user's information and selected house data to the console
-        const userData = {
-          firstName,
-          lastName,
-          phoneNumber,
-        };
-        const reservationData = {
-          arrivalDate,
-          departureDate,
-          selectedHouseInfo,
-          ...userData,
-        };
-        console.log("Reservation Data:", reservationData);
+    if (showCodeInput && verificationCode.trim() === "") {
+      setVerificationError(true);
+      return;
+    }
 
-        if (typeof onConfirm === "function") {
-          onConfirm(reservationData);
-        }
-        onClose();
-      } else {
-        setVerificationError(true);
-      }
-    } else {
-      const code = generateVerificationCode();
-      setGeneratedCode(code);
-      setShowCodeInput(true);
+    try {
+      await handleApiRequest(); // Call the handleApiRequest function
+      // Additional logic or state updates can be added here if needed
+      onClose();
+    } catch (error) {
+      console.error("Error handling API request:", error.message);
     }
   };
 
@@ -170,7 +214,6 @@ const ReservationPopup = ({
             <button onClick={handleOkClick}>OK</button>
             <button onClick={onClose}>Отмена</button>
           </div>
-          {showCodeInput && <p>Verification Code: {generatedCode}</p>}
         </div>
       </div>
     </div>
