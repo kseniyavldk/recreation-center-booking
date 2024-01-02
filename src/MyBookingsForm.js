@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import "./myBookingsForm.css";
 
-const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
+const MyBookingsForm = ({
+  onClose,
+  onConfirm,
+  onBookingHistoryOpen,
+  onAvailableOrderDataUpdate,
+}) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validationError, setValidationError] = useState({
     phoneNumber: false,
@@ -81,7 +86,6 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
       });
       return;
     }
-
     if (showCodeInput) {
       if (verificationCode.trim() === "") {
         setVerificationError(true);
@@ -117,6 +121,38 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
 
         console.log("SubmitAuth API Response:", submitAuthData);
 
+        const authToken = submitAuthData.data;
+        console.log(authToken);
+
+        const getAvailableOrderUrl = `https://localhost:44377/api/v1/Manage/Getavailableorderbyuser`;
+        const getAvailableOrderResponse = await fetch(getAvailableOrderUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: authToken,
+          }),
+        });
+
+        if (!getAvailableOrderResponse.ok) {
+          const errorText = await getAvailableOrderResponse.text();
+          console.error(
+            `Failed to fetch available orders. Status: ${getAvailableOrderResponse.status}, Response: ${errorText}`
+          );
+          throw new Error(
+            `Failed to fetch available orders. Status: ${getAvailableOrderResponse.status}`
+          );
+        }
+
+        const availableOrderData = await getAvailableOrderResponse.json();
+        console.log("GetAvailableOrder API Response:", availableOrderData);
+
+        if (typeof onAvailableOrderDataUpdate === "function") {
+          onAvailableOrderDataUpdate(availableOrderData);
+        }
+
         const userData = {
           phoneNumber,
         };
@@ -133,13 +169,6 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
           onConfirm(reservationData);
         }
         onClose();
-        // else {
-        //   setVerificationError(true);
-        //   setValidationError({
-        //     ...validationError,
-        //     verificationCode: true,
-        //   });
-        // }
       } catch (error) {
         console.error("Error checking verification code:", error.message);
       }

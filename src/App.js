@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReservationForm from "./ReservationForm";
 import "./App.css";
 import ReservationPopup from "./ReservationPopup";
@@ -12,8 +12,6 @@ function App() {
   const [showReservationPopup, setShowReservationPopup] = useState(false);
   const [showMyBookingsForm, setShowMyBookingsForm] = useState(false);
   const [showBookingHistory, setShowBookingHistory] = useState(false);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [selectedHouseDataList, setSelectedHouseDataList] = useState([]);
   const [selectedHouseIndex, setSelectedHouseIndex] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedHouse, setSelectedHouse] = useState(null);
@@ -24,6 +22,7 @@ function App() {
     totalPrice: 0,
     price: 0,
   });
+  const [availableOrderData, setAvailableOrderData] = useState([]);
 
   const calculateAmount = (selectedHouse) => {
     if (selectedHouse && selectedHouse.type && selectedHouse.price) {
@@ -167,7 +166,10 @@ function App() {
 
       {showBookingHistory ? (
         <div>
-          <ReservationHistoryForm />
+          <ReservationHistoryForm
+            onClose={() => setShowBookingHistory(false)}
+            availableOrderData={availableOrderData}
+          />
         </div>
       ) : (
         <form
@@ -242,6 +244,7 @@ function App() {
                   onClose={() => setShowMyBookingsForm(false)}
                   onBookingHistoryOpen={handleBookingHistoryOpen}
                   onSelectHouse={handleHouseSelection}
+                  onAvailableOrderDataUpdate={setAvailableOrderData}
                 />
               </div>
             </div>
