@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import "./myBookingsForm.css";
 
-const MyBookingsForm = ({
-  onClose,
-  onConfirm,
-  onBookingHistoryOpen,
-  totalAmount,
-}) => {
+const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validationError, setValidationError] = useState({
     phoneNumber: false,
@@ -16,8 +11,45 @@ const MyBookingsForm = ({
   const [verificationError, setVerificationError] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
 
-  const generateVerificationCode = () => {
-    return Math.floor(1000 + Math.random() * 9000);
+  const fetchValidationCode = async () => {
+    try {
+      const organizationCode = "zelenaygavan";
+      const bearerToken =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTZlZjIzYzBiZTI3ZTRjZjAyNGRhZjIiLCJpYXQiOjE3MDE5NDQ2MTMsImV4cCI6MTcwMTk0ODIxM30.xXBZf5Ey1uA98xo8a2WH_2dkkQOD5L1W3r8-DdQ-bn8";
+
+      const response = await fetch(
+        `https://localhost:44377/api/v1/Manage/Auth?OrganizationCode=${organizationCode}&PhoneNumber=${phoneNumber}`,
+        {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Failed to fetch validation code. Status: ${response.status}, Response: ${errorText}`
+        );
+        throw new Error(
+          `Failed to fetch validation code. Status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.failed) {
+        alert(data.message);
+        return;
+      }
+
+      setGeneratedCode("Код подтверждения отправлен");
+    } catch (error) {
+      console.error("Error fetching validation code:", error.message);
+    }
+
+    setShowCodeInput(true);
   };
 
   const validatePhoneNumber = (number) => {
@@ -36,12 +68,11 @@ const MyBookingsForm = ({
     });
 
     if (showCodeInput) {
-      const code = generateVerificationCode();
-      setGeneratedCode(code);
+      fetchValidationCode();
     }
   };
 
-  const handleOkClick = (e) => {
+  const handleOkClick = async (e) => {
     e.preventDefault();
 
     if (!phoneNumber.trim() || !validatePhoneNumber(phoneNumber)) {
@@ -52,6 +83,11 @@ const MyBookingsForm = ({
     }
 
     if (showCodeInput) {
+      if (verificationCode.trim() === "") {
+        setVerificationError(true);
+        return;
+      }
+
       if (verificationCode.trim() === generatedCode.toString()) {
         const userData = {
           phoneNumber,
@@ -73,9 +109,11 @@ const MyBookingsForm = ({
         setVerificationError(true);
       }
     } else {
-      const code = generateVerificationCode();
-      setGeneratedCode(code);
-      setShowCodeInput(true);
+      try {
+        await fetchValidationCode();
+      } catch (error) {
+        console.error("Error handling API request:", error.message);
+      }
     }
   };
 
@@ -114,13 +152,13 @@ const MyBookingsForm = ({
             {verificationError && (
               <p className="error-message">Неправильный код проверки</p>
             )}
+            {showCodeInput && <p className="error-message">{generatedCode}</p>}
           </div>
         )}
         <div className="button-group">
           <button onClick={handleOkClick}>OK</button>
           <button onClick={onClose}>Отмена</button>
         </div>
-        {showCodeInput && <p>Verification Code: {generatedCode}</p>}
       </div>
     </div>
   );

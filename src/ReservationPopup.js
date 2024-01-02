@@ -136,7 +136,6 @@ const ReservationPopup = ({
   };
 
   const handleOkClick = async () => {
-    console.log("OK Button Clicked");
     // Validate first name, last name, and phone number
     if (!firstName.trim() || !lastName.trim() || !phoneNumber.trim()) {
       setValidationError({
