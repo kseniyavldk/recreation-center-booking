@@ -5,7 +5,7 @@ function ReservationHistoryForm({ onClose, availableOrderData }) {
   console.log("Available Order Data:", availableOrderData);
 
   const orders = availableOrderData?.data || [];
-  const ordersPerPage = 5; // Set the number of orders to display per page
+  const ordersPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(orders.length / ordersPerPage);
@@ -26,12 +26,11 @@ function ReservationHistoryForm({ onClose, availableOrderData }) {
   return (
     <form>
       <div className="BookingDetails">
-        <h3>Мои бронирования</h3>
+        <h2>Мои бронирования</h2>
         <button onClick={onClose}>Главная</button>
       </div>
       {orders.length > 0 ? (
         <div>
-          <h4>Мои бронирования:</h4>
           <table>
             <thead>
               <tr>
