@@ -5,6 +5,7 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validationError, setValidationError] = useState({
     phoneNumber: false,
+    verificationCode: false,
   });
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
@@ -12,6 +13,7 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
   const [generatedCode, setGeneratedCode] = useState(null);
 
   const fetchValidationCode = async () => {
+    console.log(showCodeInput);
     try {
       const organizationCode = "zelenaygavan";
       const bearerToken =
@@ -45,15 +47,13 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
       }
 
       setGeneratedCode("Код подтверждения отправлен");
+      setShowCodeInput(true);
     } catch (error) {
       console.error("Error fetching validation code:", error.message);
     }
-
-    setShowCodeInput(true);
   };
 
   const validatePhoneNumber = (number) => {
-    // Belarusian phone number regex
     const belarusianPhoneNumberRegex = /^[+]?375[\d]{9}$/;
     return belarusianPhoneNumberRegex.test(number);
   };
@@ -65,6 +65,7 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
     setValidationError({
       phoneNumber:
         !newPhoneNumber.trim() || !validatePhoneNumber(newPhoneNumber),
+      verificationCode: false,
     });
 
     if (showCodeInput) {
@@ -72,12 +73,11 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
     }
   };
 
-  const handleOkClick = async (e) => {
-    e.preventDefault();
-
+  const handleOkClick = async () => {
     if (!phoneNumber.trim() || !validatePhoneNumber(phoneNumber)) {
       setValidationError({
         phoneNumber: true,
+        verificationCode: false,
       });
       return;
     }
@@ -87,8 +87,36 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
         setVerificationError(true);
         return;
       }
+      try {
+        const organizationCode = "zelenaygavan";
+        const submitAuthUrl = `https://localhost:44377/api/v1/Manage/Submitauth?OrganizationCode=${organizationCode}&PhoneNumber=${phoneNumber}&Code=${verificationCode}`;
 
-      if (verificationCode.trim() === generatedCode.toString()) {
+        const submitAuthResponse = await fetch(submitAuthUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!submitAuthResponse.ok) {
+          const errorText = await submitAuthResponse.text();
+          console.error(
+            `Failed to process validation code. Status: ${submitAuthResponse.status}, Response: ${errorText}`
+          );
+          throw new Error(
+            `Failed to process validation code. Status: ${submitAuthResponse.status}`
+          );
+        }
+
+        const submitAuthData = await submitAuthResponse.json();
+
+        if (submitAuthData.failed) {
+          alert(submitAuthData.message);
+          return;
+        }
+
+        console.log("SubmitAuth API Response:", submitAuthData);
+
         const userData = {
           phoneNumber,
         };
@@ -105,8 +133,15 @@ const MyBookingsForm = ({ onClose, onConfirm, onBookingHistoryOpen }) => {
           onConfirm(reservationData);
         }
         onClose();
-      } else {
-        setVerificationError(true);
+        // else {
+        //   setVerificationError(true);
+        //   setValidationError({
+        //     ...validationError,
+        //     verificationCode: true,
+        //   });
+        // }
+      } catch (error) {
+        console.error("Error checking verification code:", error.message);
       }
     } else {
       try {

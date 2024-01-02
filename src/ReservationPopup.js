@@ -6,7 +6,6 @@ const ReservationPopup = ({
   departureDate,
   selectedHouseInfo,
   onClose,
-  onConfirm,
 }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
